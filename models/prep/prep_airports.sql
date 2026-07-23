@@ -9,7 +9,7 @@ WITH airports_reorder AS (
         ,lon
         ,alt
         ,tz
-        ,dst
+        ,dstgi
 
     FROM {{ref('staging_airports')}}
 
