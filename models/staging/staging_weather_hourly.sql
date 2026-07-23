@@ -3,7 +3,7 @@
 WITH weather_hourly AS (
 
     SELECT *
-    FROM {{ source('weather_data', 'weather_hourly') }}
+    FROM {{ source('weather_data', 'weather_hourly_raw') }}
 
 ),
 
