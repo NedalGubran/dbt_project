@@ -1,43 +1,45 @@
 {{ config(materialized='table') }}
 
-WITH weather_hourly AS (
+WITH raw_weather AS (
 
-    SELECT *
+    SELECT
+        extracted_at,
+        airport_code,
+        station_id,
+        extracted_data
+
     FROM {{ source('weather_data', 'weather_hourly_raw') }}
 
 ),
 
-cleaned_weather AS (
+weather_extracted AS (
 
     SELECT
 
-        timestamp
+        airport_code,
+        station_id,
 
-        , city
+        (data->>'time')::TIMESTAMP AS timestamp,
 
-        , latitude
+        (data->>'temp')::NUMERIC AS temperature,
 
-        , longitude
+        (data->>'rhum')::NUMERIC AS relative_humidity,
 
-        , temperature::NUMERIC
+        (data->>'pres')::NUMERIC AS pressure,
 
-        , ROUND(temperature)::INTEGER AS temperature_int
+        (data->>'wspd')::NUMERIC AS wind_speed,
 
-        , ROUND(relative_humidity)::INTEGER AS relative_humidity
+        (data->>'wdir')::NUMERIC AS wind_direction,
 
-        , ROUND(pressure)::INTEGER AS pressure
+        (data->>'prcp')::NUMERIC AS precipitation,
 
-        , ROUND(wind_speed)::NUMERIC AS wind_speed
+        (data->>'coco')::INTEGER AS weather_condition
 
-        , ROUND(wind_direction)::INTEGER AS wind_direction
+    FROM raw_weather,
 
-        , ROUND(precipitation)::NUMERIC AS precipitation
-
-        , ROUND(cloud_cover)::INTEGER AS cloud_cover
-
-    FROM weather_hourly
+    LATERAL jsonb_array_elements(extracted_data->'data') AS data
 
 )
 
 SELECT *
-FROM cleaned_weather
+FROM weather_extracted
