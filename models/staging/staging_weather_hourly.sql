@@ -1,45 +1,36 @@
-{{ config(materialized='table') }}
-
-WITH raw_weather AS (
+WITH hourly_raw AS (
 
     SELECT
-        extracted_at,
         airport_code,
         station_id,
-        extracted_data
-
+        JSON_ARRAY_ELEMENTS(extracted_data -> 'data') AS json_data
     FROM {{ source('weather_data', 'weather_hourly_raw') }}
 
 ),
 
-weather_extracted AS (
+hourly_data AS (
 
     SELECT
-
         airport_code,
         station_id,
 
-        (data->>'time')::TIMESTAMP AS timestamp,
+        (json_data->>'time')::TIMESTAMP AS timestamp,
 
-        (data->>'temp')::NUMERIC AS temperature,
+        (json_data->>'temp')::NUMERIC AS temp_c,
+        (json_data->>'dwpt')::NUMERIC AS dewpoint_c,
+        (json_data->>'rhum')::INTEGER AS humidity_perc,
+        (json_data->>'prcp')::NUMERIC AS precipitation_mm,
+        (json_data->>'snow')::INTEGER AS snow_mm,
+        (json_data->>'wdir')::INTEGER AS wind_direction,
+        (json_data->>'wspd')::NUMERIC AS wind_speed_kmh,
+        (json_data->>'wpgt')::NUMERIC AS wind_peakgust_kmh,
+        (json_data->>'pres')::NUMERIC AS pressure_hpa,
+        (json_data->>'tsun')::INTEGER AS sun_minutes,
+        (json_data->>'coco')::INTEGER AS condition_code
 
-        (data->>'rhum')::NUMERIC AS relative_humidity,
-
-        (data->>'pres')::NUMERIC AS pressure,
-
-        (data->>'wspd')::NUMERIC AS wind_speed,
-
-        (data->>'wdir')::NUMERIC AS wind_direction,
-
-        (data->>'prcp')::NUMERIC AS precipitation,
-
-        (data->>'coco')::INTEGER AS weather_condition
-
-    FROM raw_weather,
-
-    LATERAL jsonb_array_elements(extracted_data->'data') AS data
+    FROM hourly_raw
 
 )
 
 SELECT *
-FROM weather_extracted
+FROM hourly_data
