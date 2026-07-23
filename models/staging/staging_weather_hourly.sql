@@ -1,36 +1,43 @@
-WITH hourly_raw AS (
+{{ config(materialized='table') }}
 
-    SELECT
-        airport_code,
-        station_id,
-        JSON_ARRAY_ELEMENTS(extracted_data -> 'data') AS json_data
-    FROM {{ source('weather_data', 'weather_hourly_raw') }}
+WITH weather_hourly AS (
+
+    SELECT *
+    FROM {{ source('weather_data', 'weather_hourly') }}
 
 ),
 
-hourly_data AS (
+cleaned_weather AS (
 
     SELECT
-        airport_code,
-        station_id,
 
-        (json_data->>'time')::TIMESTAMP AS timestamp,
+        timestamp
 
-        (json_data->>'temp')::NUMERIC AS temp_c,
-        (json_data->>'dwpt')::NUMERIC AS dewpoint_c,
-        (json_data->>'rhum')::INTEGER AS humidity_perc,
-        (json_data->>'prcp')::NUMERIC AS precipitation_mm,
-        (json_data->>'snow')::INTEGER AS snow_mm,
-        (json_data->>'wdir')::INTEGER AS wind_direction,
-        (json_data->>'wspd')::NUMERIC AS wind_speed_kmh,
-        (json_data->>'wpgt')::NUMERIC AS wind_peakgust_kmh,
-        (json_data->>'pres')::NUMERIC AS pressure_hpa,
-        (json_data->>'tsun')::INTEGER AS sun_minutes,
-        (json_data->>'coco')::INTEGER AS condition_code
+        , city
 
-    FROM hourly_raw
+        , latitude
+
+        , longitude
+
+        , temperature::NUMERIC
+
+        , ROUND(temperature)::INTEGER AS temperature_int
+
+        , ROUND(relative_humidity)::INTEGER AS relative_humidity
+
+        , ROUND(pressure)::INTEGER AS pressure
+
+        , ROUND(wind_speed)::NUMERIC AS wind_speed
+
+        , ROUND(wind_direction)::INTEGER AS wind_direction
+
+        , ROUND(precipitation)::NUMERIC AS precipitation
+
+        , ROUND(cloud_cover)::INTEGER AS cloud_cover
+
+    FROM weather_hourly
 
 )
 
 SELECT *
-FROM hourly_data
+FROM cleaned_weather
