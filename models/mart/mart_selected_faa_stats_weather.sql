@@ -1,42 +1,114 @@
+{{ config(materialized='table') }}
+
 with flight_stats as (
 
-select
+    select
 
-origin as airport,
+        origin as airport_code,
 
-flight_date,
+        flight_date,
 
-count(*) total_flights,
+        count(distinct dest) as departure_connections,
 
-sum(cancelled) cancelled,
+        count(*) as total_flights,
 
-sum(diverted) diverted,
+        sum(cancelled) as total_cancelled,
 
-count(distinct dest) departure_connections
+        sum(diverted) as total_diverted,
 
-from {{ ref('prep_flights') }}
+        sum(case when cancelled = 0 then 1 else 0 end) as actual_flights,
 
-group by
-origin,
-flight_date
+        count(distinct tail_number) as unique_airplanes,
+
+        count(distinct airline) as unique_airlines
+
+    from {{ ref('prep_flights') }}
+
+    group by
+        origin,
+        flight_date
+
+),
+
+weather_stats as (
+
+    select
+
+        airport_code,
+
+        date,
+
+        min_temp_c,
+
+        max_temp_c,
+
+        precipitin_mm,
+
+        max_snow_mm,
+
+        avg_wind_direction,
+
+        avg_wind_speed_kmh,
+
+        wind_peakgust_kmh
+
+    from {{ ref('prep_weather_daily') }}
 
 )
 
 select
 
-f.*,
+    f.airport_code,
 
-w.tmin,
-w.tmax,
-w.prcp,
-w.snow,
-w.wdir,
-w.wspd,
-w.wpgt
+    f.flight_date,
+
+    f.departure_connections,
+
+    f.total_flights,
+
+    f.total_cancelled,
+
+    f.total_diverted,
+
+    f.actual_flights,
+
+    f.unique_airplanes,
+
+    f.unique_airlines,
+
+
+    a.name as airport_name,
+
+    a.city,
+
+    a.country,
+
+
+    w.min_temp_c,
+
+    w.max_temp_c,
+
+    w.precipitin_mm,
+
+    w.max_snow_mm,
+
+    w.avg_wind_direction,
+
+    w.avg_wind_speed_kmh,
+
+    w.wind_peakgust_kmh
+
 
 from flight_stats f
 
-left join {{ ref('prep_weather_daily') }} w
 
-on f.airport=w.station
-and f.flight_date=w.date
+left join {{ ref('prep_airports') }} a
+
+on a.faa = f.airport_code
+
+
+left join weather_stats w
+
+on f.airport_code = w.airport_code
+
+and f.flight_date = w.date
