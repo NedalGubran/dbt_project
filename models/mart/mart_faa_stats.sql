@@ -36,7 +36,7 @@ arrivals as (
 
 select
 
-    coalesce(d.airport_code, a.airport_code) as airport_code,
+    coalesce(d.airport_code, ar.airport_code) as airport_code,
 
     coalesce(departure_connections,0) as departure_connections,
     coalesce(arrival_connections,0) as arrival_connections,
