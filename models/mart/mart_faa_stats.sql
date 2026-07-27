@@ -6,7 +6,7 @@ COUNT(*) AS total_flights,
 
 SUM(
 CASE
-WHEN cancelled = TRUE THEN 1
+WHEN cancelled = 1 THEN 1
 ELSE 0
 END
 ) AS cancelled
