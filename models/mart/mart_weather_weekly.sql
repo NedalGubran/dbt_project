@@ -14,7 +14,7 @@ select
 
     max(max_temp_c) as max_temp,
 
-    sum(precipitin_mm) as total_precipitation,
+    sum(precipitation_mm) as total_precipitation,
 
     sum(max_snow_mm) as total_snow,
 

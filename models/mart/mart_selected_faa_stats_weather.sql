@@ -42,7 +42,7 @@ weather_stats as (
 
         max_temp_c,
 
-        precipitin_mm,
+        precipitation_mm,
 
         max_snow_mm,
 
