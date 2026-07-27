@@ -88,7 +88,7 @@ select
 
     w.max_temp_c,
 
-    w.precipitin_mm,
+    w.precipitation_mm,
 
     w.max_snow_mm,
 
