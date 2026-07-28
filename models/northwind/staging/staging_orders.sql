@@ -6,14 +6,14 @@ WITH source_data AS (
 )
 
 SELECT
-    orderid AS order_id,
-    customerid AS customer_id,
-    employeeid AS employee_id,
-    orderdate::DATE AS order_date,
-    requireddate::DATE AS required_date,
-    shippeddate::DATE AS shipped_date,
-    shipvia AS ship_via,
-    shipcity AS ship_city,
-    shipcountry AS ship_country
+    order_id,
+    customer_id,
+    employee_id,
+    order_date::DATE AS order_date,
+    required_date::DATE AS required_date,
+    shipped_date::DATE AS shipped_date,
+    ship_via,
+    ship_city,
+    ship_country
 
 FROM source_data
