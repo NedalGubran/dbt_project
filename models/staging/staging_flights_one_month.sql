@@ -3,7 +3,7 @@
 WITH flights_one_month AS (
 
     SELECT *
-    FROM {{source('flights_data', 'flights')}}
+    FROM {{source('flights')}}
 
     WHERE DATE_PART('month', flight_date) = 1
 
