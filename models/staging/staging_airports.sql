@@ -10,4 +10,4 @@ WITH airports_regions_join AS (
 )
 
 SELECT *
-FROM airports_regions_join
+FROM airports_regions_join 
