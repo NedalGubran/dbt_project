@@ -12,4 +12,8 @@ sources:
   tables:
     - name: flights
     - name: airports
+<<<<<<< HEAD
     - name: regions
+=======
+    - name: regions #
+>>>>>>> f175b3e7ace7fcb38a7e1ff9534aaa00f5f0ad42
