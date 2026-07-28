@@ -8,7 +8,7 @@ WITH source_data AS (
 SELECT
     order_id,
     product_id,
-    rental_price::NUMERIC AS unit_price,
+    unit_price::NUMERIC AS unit_price,
     quantity::INTEGER AS quantity,
     discount::NUMERIC AS discount
 
