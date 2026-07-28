@@ -1,26 +1,85 @@
 version: 2
 
 models:
+
+  - name: staging_orders
+    description: "Cleaned and standardized order data from the Northwind source table."
+    columns:
+      - name: order_id
+        description: "Unique identifier for each order."
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: "Identifier of the customer who placed the order."
+        tests:
+          - not_null
+
+
+  - name: staging_order_details
+    description: "Cleaned order line items containing products, prices, quantities and discounts."
+    columns:
+      - name: order_id
+        description: "Identifier linking order details to orders."
+        tests:
+          - not_null
+
+      - name: product_id
+        description: "Identifier linking order details to products."
+        tests:
+          - not_null
+
+
+  - name: staging_products
+    description: "Cleaned product information including product names, categories and prices."
+    columns:
+      - name: product_id
+        description: "Unique identifier for each product."
+        tests:
+          - not_null
+          - unique
+
+      - name: category_id
+        description: "Identifier linking products to categories."
+        tests:
+          - not_null
+
+
+  - name: staging_categories
+    description: "Cleaned product category information."
+    columns:
+      - name: category_id
+        description: "Unique identifier for each category."
+        tests:
+          - not_null
+          - unique
+
+
+  - name: prep_sales
+    description: "Combined sales dataset with orders, products, categories and calculated revenue metrics."
+
+
   - name: mart_sales_performance
-    description: "Monthly sales performance by category"
+    description: "Aggregated sales performance by month and product category."
 
     columns:
       - name: order_year
-        description: "Year when the order was placed"
+        description: "Year when the order was placed."
         tests:
           - not_null
 
       - name: order_month
-        description: "Month when the order was placed"
+        description: "Month when the order was placed."
         tests:
           - not_null
 
       - name: category_name
-        description: "Product category"
+        description: "Product category."
         tests:
           - not_null
 
       - name: total_revenue
-        description: "Total revenue calculated from price, quantity and discount"
+        description: "Total revenue generated from sales."
         tests:
           - not_null
