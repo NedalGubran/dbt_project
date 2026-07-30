@@ -1,118 +1,241 @@
-
 # Northwind Sales Insights with dbt
 
 ## Project Overview
 
-This project builds a data transformation pipeline using dbt for Northwind Trading, a company that distributes food and beverage products worldwide.
+This project builds a business-ready sales analytics pipeline using **dbt (Data Build Tool)**.
 
-The goal is to transform raw operational data into clean, structured, and business-ready tables that can be used for reporting and analytics.
+The goal of this project is to transform raw Northwind operational data into clean, reliable, and reusable analytical models that can support reporting and business analysis.
 
----
+The project follows a modular dbt architecture with three main transformation layers:
 
-## Business Problems Solved
-
-The raw Northwind data had several challenges:
-
-- Raw tables were not standardized, making analysis difficult.
-- Analysts had to write complex SQL joins repeatedly to combine sales data.
-- Different analysts could calculate revenue differently, leading to inconsistent business metrics.
-
-This dbt project solves these problems by creating a structured data pipeline with clear transformation layers:
-
-- Cleaning and standardizing raw data.
-- Centralizing business logic such as revenue calculation.
-- Providing ready-to-use analytical tables for dashboards and reporting.
+- **Staging Layer**: Cleaning and standardizing raw source data.
+- **Prep Layer**: Combining datasets and applying business logic.
+- **Mart Layer**: Creating business-ready analytical models and KPIs.
 
 ---
 
-## dbt Models Built
+# Business Challenge
 
-### 1. Staging Layer
+Northwind stores sales data across multiple raw operational tables, including orders, order details, products, and categories.
 
-The staging models clean and standardize the raw Northwind tables.
+The analytics workflow faced several challenges:
 
-Models created:
+- Inconsistent column names and data types across raw tables.
+- Analysts had to rewrite complex SQL joins for every report.
+- Revenue calculations were not standardized across different reports.
 
-- `staging_orders`
-  - Cleans order data.
-  - Standardizes column names and data types.
+## Project Goal
 
-- `staging_order_details`
-  - Cleans product order information.
-  - Standardizes price, quantity, and discount fields.
-
-- `staging_products`
-  - Provides clean product information.
-
-- `staging_categories`
-  - Provides clean category information.
+Build a modular dbt pipeline that transforms raw operational data into reliable analytical models with consistent business metrics.
 
 ---
 
-### 2. Prep Layer
+# dbt Transformation Pipeline
 
-Model created:
+The project follows this data transformation flow:
 
-- `prep_sales`
+Raw Source Tables
+      |
+      ↓
+  Staging Layer
+      |
+      ↓
+  Prep Layer
+      |
+      ↓
+  Mart Layer
+      |
+      ↓
+Business Reporting
+
+
+---
+
+# Staging Layer
+
+The Staging Layer is the first step in the dbt transformation process.
+
+Its purpose is to clean and standardize raw source tables before applying business transformations.
+
+## Transformations Performed
+
+- Loaded raw tables using dbt `source()`.
+- Standardized column names across models.
+- Applied appropriate data types for analysis.
+- Selected only required columns.
+- Prepared clean datasets for downstream transformations and joins.
+
+## Staging Models
+
+### stg_orders
+
+The orders data was prepared by:
+
+- Selecting required order information.
+- Standardizing order fields.
+- Converting date columns into the correct data type.
+- Preparing order data for sales analysis.
+
+### stg_order_details
+
+The order details data was prepared by:
+
+- Keeping important sales fields:
+  - Product ID
+  - Unit Price
+  - Quantity
+  - Discount
+
+These fields were prepared for revenue calculation in the Prep layer.
+
+### stg_products
+
+The products data was prepared by selecting important business columns:
+
+- Product ID
+- Product Name
+- Supplier ID
+- Category ID
+- Unit Price
+- Units in Stock
+
+### stg_categories
+
+The category data was prepared by keeping:
+
+- Category ID
+- Category Name
+
+---
+
+# Prep Layer
+
+The Prep Layer combines cleaned staging models using key relationships and applies business logic.
+
+## Data Joins
+
+### Orders and Order Details
+Joined using:
+- order_id
 
 Purpose:
+Combine order information with transaction details.
 
-- Combines orders, order details, products, and categories.
-- Creates a single sales dataset.
-- Calculates important business metrics:
-  - Revenue
-  - Order year
-  - Order month
-
-This layer contains the main business logic used for analysis.
-
----
-
-### 3. Mart Layer
-
-Model created:
-
-- `mart_sales_performance`
+### Order Details and Products
+Joined using:
+- product_id
 
 Purpose:
+Add product information to each sales transaction.
 
-Creates an aggregated table for business reporting.
+### Products and Categories
+Joined using:
+- category_id
 
-It provides:
+Purpose:
+Add category information for sales analysis.
+-----
 
-- Total revenue
-- Total number of orders
-- Average revenue per order
+## Business Logic
 
-The data is aggregated by:
+A standardized revenue calculation was created:
 
-- Year
-- Month
-- Product category
+Revenue = Unit Price × Quantity × (1 − Discount)
 
-This table can be directly used by BI tools for dashboards and KPI reporting.
+This calculation standardizes revenue metrics across all reports and provides a consistent KPI for business analysis.
 
----
+Additional time attributes were created:
 
-## Data Quality
+- Order Year
+- Order Month
 
-Basic data validation was added using dbt tests.
-
-Tests include:
-
-- Not null checks for important fields.
-- Validation of key metrics in the final mart model.
-
-The tests ensure that the analytical tables contain reliable data.
+to support monthly sales performance analysis.
 
 ---
 
-## Main Learning
+# Mart Layer
 
-This project helped demonstrate how dbt can be used to build a modern analytics workflow by separating:
+The Mart Layer creates business-ready analytical models for reporting.
 
-- Data cleaning (Staging)
-- Business transformations (Prep)
-- Reporting tables (Mart)
+The final model created: mart_sales_performance
 
-It also showed the importance of reusable models, testing, and maintaining consistent business logic.
+
+This model provides sales performance KPIs.
+
+## Metrics Created
+
+- Total Revenue
+- Total Orders
+- Average Revenue per Order
+- Monthly Sales Performance
+- Sales by Product Category
+
+The final model aggregates data by:
+
+- Order Year
+- Order Month
+- Product Category
+
+This structure allows business users to analyze sales performance efficiently.
+
+---
+
+# Testing and Documentation
+
+Data quality and documentation were implemented using dbt features.
+
+## Data Tests
+
+The models were validated using dbt tests.
+
+Implemented tests include:
+
+- Not-null tests on important fields.
+- Validation of critical columns required for reporting.
+
+Examples:
+
+- order_year
+- order_month
+- category_name
+- total_revenue
+
+These tests help ensure reliable and consistent analytical outputs.
+
+---
+
+## Documentation
+
+dbt documentation was generated to improve project transparency and maintainability.
+
+Documentation includes:
+
+- Model descriptions.
+- Column information.
+- Data types.
+- Model dependencies.
+- SQL code.
+- Lineage graph.
+
+---
+
+# Tools Used
+
+- SQL
+- dbt
+- GitHub
+
+---
+
+# Final Outcome
+
+The final result is a clean, modular, and maintainable sales analytics pipeline.
+
+The pipeline transforms raw Northwind data into reliable analytical models ready for reporting and business analysis.
+
+This project demonstrates how dbt improves:
+
+- Data organization.
+- Data quality.
+- Reusability.
+- Analytics workflows.
